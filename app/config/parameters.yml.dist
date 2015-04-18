@@ -1,0 +1,23 @@
+# This file is a "template" of what your parameters.yml file should look like
+parameters:
+    database_driver:   pdo_mysql
+    database_host:     127.0.0.1
+    database_port:     ~
+    database_name:     symfony
+    database_user:     root
+    database_password: ~
+    # You should uncomment this if you want use pdo_sqlite
+    # database_path: "%kernel.root_dir%/data.db3"
+
+    mailer_transport:  smtp
+    mailer_host:       127.0.0.1
+    mailer_user:       ~
+    mailer_password:   ~
+
+    locale:            en
+
+    # A secret key that's used to generate certain security-related tokens
+    secret:            ThisTokenIsNotSoSecretChangeIt
+    last_key: 5f92e3cf1e7e2f8fdc3c39a462c010c5
+    last_secret: is 4b6df25cbe3d9d7f0fcacda90cac55dc
+    last_url: http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=%user%&api_key=%last_key%&format=json

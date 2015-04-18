@@ -1,0 +1,6 @@
+services:
+    last.service:
+        class: LastService
+
+
+
