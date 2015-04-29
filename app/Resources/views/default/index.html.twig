@@ -1,5 +1,32 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    Homepage.
+  <input value="Click" id="start" type="submit" />
+{% endblock %}
+{% block javascripts %}
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+        $(document).ready(function() {
+            $("#start").click(function() {
+               doLogin(function() {});
+            });
+        });
+
+       // var g_tracks = '';
+       // var g_name = '';
+        var client_id = "{{ client_id }}";
+        var redirect_uri = "{{ app.request.uri }}";
+
+        var doLogin = function(callback) {
+
+            var url = 'https://accounts.spotify.com/api/token?client_id=' + client_id +
+                    '&response_type=token' +
+                    '&scope=playlist-read-private%20playlist-modify' +
+                    '&redirect_uri=' + encodeURIComponent(redirect_uri);
+          //  localStorage.setItem('createplaylist-tracks', JSON.stringify(g_tracks));
+         //   localStorage.setItem('createplaylist-name', g_name);
+            var w = window.open(url, '_self');
+        }
+    </script>
 {% endblock %}

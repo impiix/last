@@ -4,15 +4,26 @@ namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class DefaultController extends Controller
 {
     /**
      * @Route("/app/example", name="homepage")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
-        $this->get("last.service");
-        return $this->render('default/index.html.twig');
+        $i = 5;
+        if($request->query->get("code")) {
+            $grabService = $this->get("last.service");
+            $tracks = $grabService->grab("icesahara", $request->query->get("code"));
+
+            print_r($tracks);
+        }
+
+        return $this->render('default/index.html.twig',
+            [
+                'client_id' => $this->container->getParameter("spotify_client_id")
+            ]);
     }
 }

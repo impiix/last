@@ -20,4 +20,7 @@ parameters:
     secret:            ThisTokenIsNotSoSecretChangeIt
     last_key: 5f92e3cf1e7e2f8fdc3c39a462c010c5
     last_secret: is 4b6df25cbe3d9d7f0fcacda90cac55dc
-    last_url: http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=%user%&api_key=%last_key%&format=json
+    last_url: 'http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user={username}&api_key=%last_key%&format=json'
+    spotify_url: 'https://api.spotify.com/v1/search?q={query}&type=track'
+    spotify_playlist_create_url: "https://api.spotify.com/v1/users/{user_id}/playlists"
+    spotify_playlist_add_url: "https://api.spotify.com/v1/users/{user_id}/playlists/{playlist_id}/tracks?uris={uris}"
