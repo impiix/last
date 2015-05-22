@@ -7,6 +7,7 @@
 namespace AppBundle\Service;
 
 use GuzzleHttp\Client;
+use Predis\Client as PredisClient;
 
 class LastService {
 
@@ -21,6 +22,8 @@ class LastService {
     private $spotifyCreatePlaylistUrl;
 
     private $spotifyPlaylistAddUrl;
+
+    private $predis;
 
     protected function grabFromLast($username) {
         $url = str_replace("{username}", $username, $this->lastUrl);
@@ -42,12 +45,17 @@ class LastService {
         $i = 0;
         foreach($tracks as $track) {
             $query = urlencode(sprintf("%s %s", $track['name'], $track['artist']));
-            $url = str_replace("{query}", $query, $this->spotifyUrl);
-            $response = $this->guzzle->get($url);
-            $data = $response->getBody()->getContents();
-            $data = json_decode($data, true);
-            if(isset($data['tracks']['items'][0])) {
-                $uris[] = $data['tracks']['items'][0]['uri'];
+            if(null === $result = $this->predis->get($query)) {
+                $url = str_replace("{query}", $query, $this->spotifyUrl);
+                $response = $this->guzzle->get($url);
+                $data = $response->getBody()->getContents();
+                $data = json_decode($data, true);
+                $result = isset($data['tracks']['items'][0]['uri']) ? $data['tracks']['items'][0]['uri'] : false;
+                $this->predis->set($query, $result);
+            }
+
+            if($result) {
+                $uris[] = $result;
             }
             //fixme:remove below
             //break;
@@ -78,10 +86,14 @@ class LastService {
             [
                 'headers'   => ['Authorization' => $auth],
             ]);
+        return $response;
     }
+
+
 
     public function grab($lastUsername, $auth) {
         $tracks = $this->grabFromLast($lastUsername);
+
         $uris = $this->getSpotifyUrls($tracks);
         $auth = "Bearer " . $auth;
         $url = $this->createPlaylist($auth);
@@ -93,12 +105,13 @@ class LastService {
         return $uris;
     }
 
-    public function __construct(Client $guzzle, $lastKey, $lastUrl, $spotifyUrl, $spotifyCreatePlaylistUrl, $spotifyPlaylistAddUrl) {
+    public function __construct(Client $guzzle, PredisClient $predis,  $lastKey, $lastUrl, $spotifyUrl, $spotifyCreatePlaylistUrl, $spotifyPlaylistAddUrl) {
         $this->guzzle = $guzzle;
         $this->lastKey = $lastKey;
         $this->lastUrl = $lastUrl;
         $this->spotifyUrl = $spotifyUrl;
         $this->spotifyCreatePlaylistUrl = $spotifyCreatePlaylistUrl;
         $this->spotifyPlaylistAddUrl = $spotifyPlaylistAddUrl;
+        $this->predis = $predis;
     }
 }

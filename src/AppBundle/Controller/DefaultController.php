@@ -14,9 +14,10 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $i = 5;
-        if($request->query->get("code")) {
+        if( $request->query->get("access_token")) {
             $grabService = $this->get("last.service");
-            $tracks = $grabService->grab("icesahara", $request->query->get("code"));
+            $tracks = $grabService->grab("icesahara", $request->query->get("access_token"));
+
 
             print_r($tracks);
         }

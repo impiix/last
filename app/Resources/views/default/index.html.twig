@@ -8,6 +8,15 @@
     <script>
 
         $(document).ready(function() {
+
+            var url = window.location.href;
+
+            if(url.indexOf("#access_token=") !== -1) {
+                url = url.replace(/#/gi, "?");
+                console.log(url);
+                window.open(url, '_self');
+            }
+
             $("#start").click(function() {
                doLogin(function() {});
             });
@@ -20,10 +29,10 @@
 
         var doLogin = function(callback) {
 
-            var url = 'https://accounts.spotify.com/api/token?client_id=' + client_id +
+            var url = 'https://accounts.spotify.com/api/authorize?client_id=' + client_id +
                     '&response_type=token' +
                     '&scope=playlist-read-private%20playlist-modify' +
-                    '&redirect_uri=' + encodeURIComponent(redirect_uri);
+                    '&show_dialog=true&redirect_uri=' + encodeURIComponent(redirect_uri);
           //  localStorage.setItem('createplaylist-tracks', JSON.stringify(g_tracks));
          //   localStorage.setItem('createplaylist-name', g_name);
             var w = window.open(url, '_self');

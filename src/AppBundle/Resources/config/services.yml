@@ -1,7 +1,7 @@
 services:
     last.service:
         class: AppBundle\Service\LastService
-        arguments: [@guzzle, %last_key%, %last_url%, %spotify_url%, %spotify_playlist_create_url%, %spotify_playlist_add_url%]
+        arguments: [@guzzle, @predis, %last_key%, %last_url%, %spotify_url%, %spotify_playlist_create_url%, %spotify_playlist_add_url%]
 
 
 
