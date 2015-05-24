@@ -14,12 +14,17 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
         $i = 5;
-        if( $request->query->get("access_token")) {
+        if( $token = $request->query->get("access_token")) {
+            $username = "icesahara";
+            $this->get("old_sound_rabbit_mq.last_producer")->publish(serialize([
+                "username"  => $username,
+                "token"     => $token
+            ]));
             $grabService = $this->get("last.service");
-            $tracks = $grabService->grab("icesahara", $request->query->get("access_token"));
+           // $tracks = $grabService->grab($username, $token);
 
 
-            print_r($tracks);
+
         }
 
         return $this->render('default/index.html.twig',
