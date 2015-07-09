@@ -5,8 +5,21 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     </head>
     <body>
+
+    {% for flashes in app.session.flashBag.all %}
+        {% for flash in flashes %}
+            <div class="alert alert-success" role="alert">
+                <strong>{{ flash }}</strong>
+            </div>
+
+        {% endfor %}
+    {% endfor %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

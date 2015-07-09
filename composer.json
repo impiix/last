@@ -23,7 +23,9 @@
         "incenteev/composer-parameter-handler": "~2.0",
         "guzzlehttp/guzzle": "5.*",
         "predis/predis": "1.1.*@dev",
-        "oldsound/rabbitmq-bundle": "1.6.0"
+        "oldsound/rabbitmq-bundle": "1.6.0",
+        "doctrine/mongodb-odm": "1.0.0-BETA13",
+        "doctrine/mongodb-odm-bundle": "3.0.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
