@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @package AppBundle\Service
  */
-class LastService
+class LastService implements LastServiceInterface
 {
 
     /**
@@ -70,7 +70,16 @@ class LastService
      * @param              $spotifyPlaylistAddUrl
      * @param OrderService $orderService
      */
-    public function __construct(Client $guzzle, PredisClient $predis, $lastKey, $lastUrl, $spotifyUrl, $spotifyCreatePlaylistUrl, $spotifyPlaylistAddUrl, $spotifyProfileUrl, OrderService $orderService)
+    public function __construct(
+        Client $guzzle,
+        PredisClient $predis,
+        $lastKey,
+        $lastUrl,
+        $spotifyUrl,
+        $spotifyCreatePlaylistUrl,
+        $spotifyPlaylistAddUrl,
+        $spotifyProfileUrl,
+        OrderService $orderService)
     {
         $this->guzzle = $guzzle;
         $this->lastKey = $lastKey;
@@ -85,8 +94,9 @@ class LastService
 
     /**
      * @param $username
-     *
+     * @param $type
      * @return array
+     * @throws LastException
      */
     protected function grabFromLast($username, $type)
     {
@@ -207,10 +217,7 @@ class LastService
     }
 
     /**
-     * @param $lastUsername
-     * @param $auth
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function grab($lastUsername, $auth, $type)
     {
@@ -221,9 +228,10 @@ class LastService
 
         $uris = $this->getSpotifyUrls($tracks);
         $auth = "Bearer " . $auth;
+
         $userId = $this->getUserId($auth);
         $url = $this->createPlaylist($auth, $userId, $lastUsername, $type);
-        //$id = substr($url, strrpos($url, '/') + 1); - strpos doesn't return last char - wtf?
+
         $explodedUrl = explode('/', $url);
         $playlistId = end($explodedUrl);
 
