@@ -80,7 +80,7 @@ class Order
      *
      * @return self
      */
-    public function setTarget($tracksCountAdded)
+    public function setTracksCountAdded($tracksCountAdded)
     {
         $this->tracksCountAdded = $tracksCountAdded;
 
