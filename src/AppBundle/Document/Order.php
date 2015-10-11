@@ -9,6 +9,8 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 
 /**
  * @MongoDB\Document
+ * @MongoDB\HasLifecycleCallbacks
+ *
  */
 class Order
 {
@@ -44,6 +46,11 @@ class Order
      * @MongoDB\String
      */
     protected $status;
+
+    /**
+     * @MongoDB\Date
+     */
+    protected $createdAt;
 
     /**
      * Get id
@@ -95,5 +102,13 @@ class Order
     public function getTracksCountAdded()
     {
         return $this->tracksCountAdded;
+    }
+
+    /**
+     * @MongoDB\PrePersist
+     */
+    public function prePersist()
+    {
+        $this->createdAt = new \DateTime();
     }
 }

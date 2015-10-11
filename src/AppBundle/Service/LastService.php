@@ -51,6 +51,11 @@ class LastService
     private $spotifyPlaylistAddUrl;
 
     /**
+     * @var
+     */
+    private $spotifyProfileUrl;
+
+    /**
      * @var PredisClient
      */
     private $predis;
@@ -68,6 +73,7 @@ class LastService
      * @param              $spotifyUrl
      * @param              $spotifyCreatePlaylistUrl
      * @param              $spotifyPlaylistAddUrl
+     * @param              $spotifyProfileUrl
      * @param OrderService $orderService
      */
     public function __construct(Client $guzzle, PredisClient $predis, $lastKey, $lastUrl, $spotifyUrl, $spotifyCreatePlaylistUrl, $spotifyPlaylistAddUrl, $spotifyProfileUrl, OrderService $orderService)
@@ -85,8 +91,10 @@ class LastService
 
     /**
      * @param $username
+     * @param $type
      *
      * @return array
+     * @throws LastException
      */
     protected function grabFromLast($username, $type)
     {
