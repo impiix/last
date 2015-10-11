@@ -14,7 +14,7 @@ use Doctrine\ODM\MongoDB\DocumentManager;
  *
  * @package AppBundle\Service
  */
-class OrderService
+class OrderService implements OrderServiceInterface
 {
 
     /**
@@ -31,7 +31,7 @@ class OrderService
     }
 
     /**
-     * @param Order $order
+     * {@inheritdoc}
      */
     public function save(Order $order)
     {
