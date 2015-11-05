@@ -41,7 +41,7 @@ class LastConsumer implements ConsumerInterface
     /**
      * @param AMQPMessage $msg
      *
-     * @return bool
+     * @return int
      */
     public function execute(AMQPMessage $msg)
     {

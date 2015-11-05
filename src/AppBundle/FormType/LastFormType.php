@@ -16,8 +16,11 @@ class LastFormType extends AbstractType
     {
         $formBuilder
             ->add("name", "text")
-            ->add("type", "choice", ["choices" => ["top" => "Top", "recent" => "Recent", "loved" => "Loved"]])
-            ->add("submit", "submit");
+            ->add("type", "choice", [
+                "choices" => ["top" => "Top", "recent" => "Recent", "loved" => "Loved"],
+                'expanded' => true
+            ])
+            ;
         return $formBuilder;
 
     }

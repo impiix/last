@@ -8,8 +8,8 @@ namespace AppBundle\Service;
 
 use AppBundle\Document\Order;
 use AppBundle\Exception\LastException;
-use GuzzleHttp\Client;
-use Predis\Client as PredisClient;
+use GuzzleHttp\ClientInterface;
+use Predis\ClientInterface as PredisClientInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -31,7 +31,7 @@ class LastService implements LastServiceInterface
     private $lastKey;
 
     /**
-     * @var Client
+     * @var ClientInterface
      */
     private $guzzle;
 
@@ -56,7 +56,7 @@ class LastService implements LastServiceInterface
     private $spotifyProfileUrl;
 
     /**
-     * @var PredisClient
+     * @var PredisClientInterface
      */
     private $predis;
 
@@ -66,19 +66,19 @@ class LastService implements LastServiceInterface
     private $orderService;
 
     /**
-     * @param Client       $guzzle
-     * @param PredisClient $predis
-     * @param              $lastKey
-     * @param              $lastUrl
-     * @param              $spotifyUrl
-     * @param              $spotifyCreatePlaylistUrl
-     * @param              $spotifyPlaylistAddUrl
-     * @param              $spotifyProfileUrl
-     * @param OrderService $orderService
+     * @param ClientInterface       $guzzle
+     * @param PredisClientInterface $predis
+     * @param                       $lastKey
+     * @param                       $lastUrl
+     * @param                       $spotifyUrl
+     * @param                       $spotifyCreatePlaylistUrl
+     * @param                       $spotifyPlaylistAddUrl
+     * @param                       $spotifyProfileUrl
+     * @param OrderService          $orderService
      */
     public function __construct(
-        Client $guzzle,
-        PredisClient $predis,
+        ClientInterface $guzzle,
+        PredisClientInterface $predis,
         $lastKey,
         $lastUrl,
         $spotifyUrl,
@@ -195,15 +195,20 @@ class LastService implements LastServiceInterface
             ]
         );
 
-        return $response->getHeader("location");
+        /**
+         * @var \Psr\Http\Message\ResponseInterface $response
+         */
+
+        return $response->getHeaderLine("location");
     }
 
     /**
      * @param $playlistId
      * @param $uris
      * @param $auth
+     * @param $userId
      *
-     * @return \GuzzleHttp\Message\FutureResponse|\GuzzleHttp\Message\ResponseInterface|\GuzzleHttp\Ring\Future\FutureInterface|null
+     * @return int
      */
     protected function addTracksToPlaylist($playlistId, $uris, $auth, $userId)
     {
@@ -220,7 +225,7 @@ class LastService implements LastServiceInterface
             ]
         );
 
-        return $response;
+        return $response->getStatusCode();
     }
 
     /**

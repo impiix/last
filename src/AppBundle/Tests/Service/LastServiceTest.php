@@ -5,6 +5,7 @@
  */
 namespace AppBundle\Tests;
 
+use AppBundle\Service\LastService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class LastServiceTest extends WebTestCase
@@ -14,8 +15,18 @@ class LastServiceTest extends WebTestCase
     {
         $client = static::createClient();
         $container = $client->getContainer();
+
         $username = "icesahara";
         $token = "";
-        $container->get("last.service")->grab($username, $token);
+
+        $service = $this->getMockBuilder('AppBundle\Service\LastService')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $service = new LastService(
+            ''
+        );
+
+        $service->grab($username, $token, "recent");
     }
 }

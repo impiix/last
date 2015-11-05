@@ -24,4 +24,6 @@ parameters:
     spotify_url: 'https://api.spotify.com/v1/search?q={query}&type=track'
     spotify_playlist_create_url: "https://api.spotify.com/v1/users/{user_id}/playlists"
     spotify_playlist_add_url: "https://api.spotify.com/v1/users/{user_id}/playlists/{playlist_id}/tracks?uris={uris}"
+    spotify_auth_url: "https://accounts.spotify.com/api/authorize?client_id={client_id}&response_type=token&scope=playlist-read-private%20playlist-modify&show_dialog=true&redirect_uri={redirect_uri}"
+    spotify_profile_url: 'https://api.spotify.com/v1/me'
     spotify_client_id: 36647d3a9f4640fcad1e47b8e9d0785a

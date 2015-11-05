@@ -11,7 +11,7 @@ class DefaultController extends Controller
 {
 
     /**
-     * @Route("/app/example", name="homepage")
+     * @Route("/", name="homepage")
      * @param Request $request
      *
      * @return \Symfony\Component\HttpFoundation\Response
@@ -24,7 +24,7 @@ class DefaultController extends Controller
 
         $form = $this->createForm($formType);
 
-        $clientId = $this->container->getParameter("spotify_client_id");
+
 
         $form->handleRequest($request);
 
@@ -34,9 +34,13 @@ class DefaultController extends Controller
             $this->get("session")->set("name", $form['name']->getData());
             $this->get("session")->set("type", $form['type']->getData());
 
-            $url = "https://accounts.spotify.com/api/authorize?client_id="
-                . $clientId . "&response_type=token&scope=playlist-read-private%20playlist-modify&show_dialog=true&redirect_uri="
-                . $redirectUri;
+            $clientId = $this->container->getParameter("spotify_client_id");
+
+            $url = str_replace(
+                ["{client_id}", "{redirect_uri}"],
+                [$clientId, $redirectUri],
+                $this->container->getParameter("spotify_auth_url")
+            );
 
             return $this->redirect($url);
         } elseif ($form->isSubmitted()) {
@@ -61,9 +65,8 @@ class DefaultController extends Controller
 
 
         return $this->render(
-            'default/index.html.twig',
+            'AppBundle:default:index.html.twig',
             [
-                'client_id' => $clientId,
                 'form'      => $form->createView()
             ]
         );
