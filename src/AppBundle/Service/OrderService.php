@@ -38,4 +38,18 @@ class OrderService implements OrderServiceInterface
         $this->objectManager->persist($order);
         $this->objectManager->flush();
     }
+
+    public function test()
+    {
+        $query = $this->objectManager
+            ->createQueryBuilder("AppBundle:Order")
+            ->find()
+            ->sort("createdAt", -1)
+            ->limit(10)
+            ->getQuery();
+
+        $results = $query->toArray();
+
+        return $results;
+    }
 }

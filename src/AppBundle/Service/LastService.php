@@ -74,7 +74,7 @@ class LastService implements LastServiceInterface
      * @param                       $spotifyCreatePlaylistUrl
      * @param                       $spotifyPlaylistAddUrl
      * @param                       $spotifyProfileUrl
-     * @param OrderService          $orderService
+     * @param OrderServiceInterface $orderService
      */
     public function __construct(
         ClientInterface $guzzle,
@@ -85,8 +85,8 @@ class LastService implements LastServiceInterface
         $spotifyCreatePlaylistUrl,
         $spotifyPlaylistAddUrl,
         $spotifyProfileUrl,
-        OrderService $orderService)
-    {
+        OrderServiceInterface $orderService
+    ) {
         $this->guzzle = $guzzle;
         $this->lastKey = $lastKey;
         $this->lastUrl = $lastUrl;
@@ -119,7 +119,6 @@ class LastService implements LastServiceInterface
             throw new LastException("Invalid last.fm response content");
         }
         foreach ($data[$type . 'tracks']['track'] as $track) {
-
             $tracks[] = [
                 'name'   => $track['name'],
                 'artist' => $track['artist'][$type == "recent" ? "#text" : 'name'],
@@ -167,7 +166,8 @@ class LastService implements LastServiceInterface
      */
     protected function getUserId($auth)
     {
-        $response = $this->guzzle->get($this->spotifyProfileUrl,
+        $response = $this->guzzle->get(
+            $this->spotifyProfileUrl,
             [
                 'headers' => ['Authorization' => $auth]
             ]
@@ -189,7 +189,8 @@ class LastService implements LastServiceInterface
             "name" => ucwords($type) . "By" . ucwords($username)
         ];
         $response = $this->guzzle->post(
-            $url, [
+            $url,
+            [
                 'headers' => ['Authorization' => $auth],
                 'json'    => $json
             ]

@@ -1,0 +1,51 @@
+div {
+    font-family: MontSerrat, sans-serif;
+}
+div.my-main-box {
+    width: 800px; margin: auto; margin-top: 100px; margin-bottom: 100px;
+}
+label {
+    margin-right: 20px;
+    margin-left: 10px;
+}
+.panel-body {
+    text-align: center;
+}
+input.btn {
+    margin-bottom: 20px;
+    font-size: 25px;
+    background: #004571 !important;
+    border: 2px solid #004571;
+    color: #fff;
+}
+
+form.my-form {
+    font-size:44px;
+}
+form.my-form div {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+input[type=radio] {
+    display: none;
+}
+label {
+    cursor: pointer;
+}
+input[type=radio] + label:before {
+    font-family:'FontAwesome';
+    display: inline-block;
+}
+input[type=radio] + label:before {
+    content:"\f00d";
+    color: #004571;
+    cursor: pointer;
+}
+input[type=radio] + label:before {
+    letter-spacing: 10px;
+}
+input[type=radio]:checked + label:before {
+    content:"\f054";
+    color: #004571; /* Remove this if you remove the 3 Last Rules of the CSS */
+}

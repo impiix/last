@@ -9,23 +9,22 @@ namespace AppBundle\FormType;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class LastFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $formBuilder, array $options)
     {
         $formBuilder
-            ->add("name", "text")
-            ->add("type", "choice", [
-                "choices" => ["top" => "Top", "recent" => "Recent", "loved" => "Loved"],
-                'expanded' => true
+            ->add("name", TextType::class)
+            ->add("type", ChoiceType::class, [
+                "choices" => ["Top" => "top", "Recent" => "recent", "Loved" => "loved"],
+                'expanded' => true,
+                'choices_as_values' => true
             ])
             ;
         return $formBuilder;
 
-    }
-    public function getName()
-    {
-        return "last_type";
     }
 }

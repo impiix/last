@@ -5,24 +5,38 @@ namespace AppBundle\Controller;
 use AppBundle\FormType\LastFormType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 class DefaultController extends Controller
 {
+    /**
+     * @Route("/orders.json", name="orders")
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function getOrdersAction(Request $request)
+    {
+        $orders = $this->get("order.service")->test();
+
+        $json = $this->get("jms_serializer")->serialize($orders, 'json');
+
+        $response = new Response($json);
+        $response->headers->set("Content-Type", "application/json");
+
+        return $response;
+    }
 
     /**
      * @Route("/", name="homepage")
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function indexAction(Request $request)
     {
-
-
-        $formType = new LastFormType();
-
-        $form = $this->createForm($formType);
+        $form = $this->createForm(LastFormType::class);
 
 
 

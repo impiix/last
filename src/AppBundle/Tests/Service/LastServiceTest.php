@@ -6,7 +6,10 @@
 namespace AppBundle\Tests;
 
 use AppBundle\Service\LastService;
+use GuzzleHttp\ClientInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Predis\ClientInterface as PredisClientInterface;
+use AppBundle\Service\OrderServiceInterface;
 
 class LastServiceTest extends WebTestCase
 {
@@ -19,12 +22,21 @@ class LastServiceTest extends WebTestCase
         $username = "icesahara";
         $token = "";
 
-        $service = $this->getMockBuilder('AppBundle\Service\LastService')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $guzzle = $this->getMockBuilder(ClientInterface::class)->getMock();
+        $guzzle->expects("get");
+        $predis = $this->getMockBuilder(PredisClientInterface::class)->getMock();
+        $orderService = $this->getMockBuilder(OrderServiceInterface::class)->getMock();
 
         $service = new LastService(
-            ''
+            $guzzle,
+            $predis,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            $orderService
         );
 
         $service->grab($username, $token, "recent");
