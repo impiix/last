@@ -19,7 +19,8 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
-            new \JMS\SerializerBundle\JMSSerializerBundle()
+            new \JMS\SerializerBundle\JMSSerializerBundle(),
+            new \FOS\UserBundle\FOSUserBundle()
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

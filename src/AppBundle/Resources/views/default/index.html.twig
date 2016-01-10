@@ -24,6 +24,12 @@
         </div>
     </nav>
 
+    <div ng-controller="FollowCtrl">
+    {% if (follow) %}
+        <div>
+            <input type="submit" ng-click="load($event, name)" />
+        </div>
+    {% endif %}
 
     <div class="panel panel-primary my-main-box">
         <div class="panel-heading">
@@ -37,10 +43,11 @@
                 <br />
                 Enjoy!
             </div>
-            {{ form_start(form, {"attr": {"class" :"my-form"}}) }}
+            {{ form_start(form, {"attr": {"class" :"my-form", 'ng-submit' : "submit($event)"}}) }}
             <div>
-            {{ form_label(form.name) }} {{ form_widget(form.name) }}
+            {{ form_label(form.name) }} {{ form_widget(form.name, {'attr' : {'ng-model' : 'formData.name'}}) }}
             </div>
+            {{ form_widget(form.follow, {'attr':{"class" : "btn btn-primary btn-lg", 'ng-click' : 'setFollow()'}}) }}
             <div class="my-choices">
 
 
@@ -50,14 +57,18 @@
                     {{ form_label(choice) }}
                 {% endfor %}
             </div>
-            <input type="submit" class="btn btn-cta-primary" value="Submit" />
+
+
+            {{ form_widget(form.submit, {'attr':{"class" : "btn btn-primary btn-lg"}}) }}
+
             {{ form_end(form) }}
         </div>
 
     </div>
+    </div>
 
 
-    <div ng-app="lastApp">
+    <div>
         <h4>Orders</h4>
         <table class="table" ng-controller="OrderCtrl">
             <tr>
@@ -82,9 +93,11 @@
 
 {% endblock %}
 {% block javascripts %}
+
+    {{ parent() }}
+
     {% javascripts '@AppBundle/Resources/public/assets/js/controllers.js' %}
 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="{{ asset_url }}"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 
@@ -110,6 +123,6 @@
 
     </script>
     <script>
-        var socket = io('http://localhost:3000');
+        //var socket = io('http://localhost:3000');
     </script>
 {% endblock %}

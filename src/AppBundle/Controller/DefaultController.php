@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\FormType\LastFormType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,24 +30,27 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/", name="homepage")
+     * @Route("/", name="post")
+     * @Method("POST")
+     *
      * @param Request $request
      *
      * @return Response
      */
-    public function indexAction(Request $request)
+    public function postAction(Request $request)
     {
         $form = $this->createForm(LastFormType::class);
-
-
 
         $form->handleRequest($request);
 
         if ($form->isValid()) {
             $redirectUri = $request->getSchemeAndHttpHost() . $request->getPathInfo();
 
+            $submit = $form->getClickedButton()->getName();
+
             $this->get("session")->set("name", $form['name']->getData());
             $this->get("session")->set("type", $form['type']->getData());
+            $this->get("session")->set("submit", $submit);
 
             $clientId = $this->container->getParameter("spotify_client_id");
 
@@ -61,27 +65,48 @@ class DefaultController extends Controller
             $errors = $form->getErrors(true);
             $this->get("session")->getFlashBag()->add("error", (string)$errors);
         }
+    }
+
+    /**
+     * @Route("/", name="homepage")
+     * @Method("GET")
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function indexAction(Request $request)
+    {
+        $form = $this->createForm(LastFormType::class);
+
+
+        $form->handleRequest($request);
+
+        $follow = false;
 
         if ($token = $request->query->get("access_token")) {
             $username = $this->get("session")->get("name");
-            $this->get("old_sound_rabbit_mq.last_producer")->publish(
-                serialize(
-                    [
-                        "username" => $username,
-                        "token"    => $token,
-                        "type"     => $this->get("session")->get("type")
-                    ]
-                )
-            );
-            $this->get("session")->getFlashBag()->add("info", "Added to queue.");
-            $this->redirect($request->getUri());
+            if ($this->get("session")->get("submit") == LastFormType::SUBMIT_FOLLOW) {
+                $follow = true;
+            } else {
+                $this->get("old_sound_rabbit_mq.last_producer")->publish(
+                    serialize(
+                        [
+                            "username" => $username,
+                            "token" => $token,
+                            "type" => $this->get("session")->get("type")
+                        ]
+                    )
+                );
+                $this->get("session")->getFlashBag()->add("info", "Added to queue.");
+                $this->redirect($request->getUri());
+            }
         }
-
 
         return $this->render(
             'AppBundle:default:index.html.twig',
             [
-                'form'      => $form->createView()
+                'form'      => $form->createView(),
+                'follow'    => $follow
             ]
         );
     }

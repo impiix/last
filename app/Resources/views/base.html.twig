@@ -13,7 +13,7 @@
         {% endstylesheets %}
 
     </head>
-    <body>
+    <body ng-app="lastApp">
 
     {% for flashes in app.session.flashBag.all %}
         {% for flash in flashes %}
@@ -25,7 +25,7 @@
     {% endfor %}
         {% block body %}{% endblock %}
         {% block javascripts %}
-
+            <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
         {% endblock %}
     </body>
 </html>
