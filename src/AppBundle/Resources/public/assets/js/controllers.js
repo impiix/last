@@ -17,33 +17,38 @@ lastApp.controller("OrderCtrl", function ($scope, $http, $interval) {
     $scope.orderProp = "created_at";
 });
 
-lastApp.controller("FollowCtrl", function ($scope, $http, $interval) {
+lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $timeout) {
 
     var enabled = false;
 
-    $scope.formData = {};
-    $scope.submitValue = false;
+    $scope.show = false;
+    $scope.showError = false;
+    $scope.errorContent = "";
+    $scope.followLabel = "Follow";
+
+    $scope.formData = {
+    };
 
     $scope.load = function ($event, username) {
+        console.log('zion');
+        console.log($scope.formData.name);
         if (enabled) {
             $scope.stop();
             enabled = false;
-            angular.element($event.currentTarget).html("Follow");
+            $scope.followLabel = "Follow";
         } else {
             $scope.start(username);
             enabled = true;
-            angular.element($event.currentTarget).html("Unfollow");
+            $scope.followLabel = "Unfollow";
         }
     }
 
     $scope.setFollow = function () {
-        $scope.submitValue = "follow";
+        $scope.formData.follow = "follow";
     }
 
     $scope.submit = function ($event, name) {
-        console.log($event);
-        console.log(name);
-        $scope.formData.submit = $scope.submitValue;
+
         $http({
             method: "POST",
             url:    "/",
@@ -51,7 +56,30 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval) {
             headers:{"Content-Type": "application/x-www-form-urlencoded"}
         }).
         success(function(data) {
-            console.log(data);
+            var resp = angular.fromJson(data);
+
+            if (resp.result) {
+
+                if (resp.result == "redirect") {
+                    $window.location.href = resp.url;
+                } else if (resp.result == 'ok' && $scope.formData.follow) {
+                    console.log($scope.formData.name);
+                    $scope.load($event, $scope.formData.name);
+                }else if (resp.result == 'ok') {
+                    $scope.show = true;
+                    $timeout(function() {
+                        $scope.show = false;
+                        }, 1000);
+                } else if (resp.result == 'error') {
+                    console.log(resp);
+                    $scope.errorContent = resp.message;
+                    $scope.showError = true;
+                    $timeout(function() {
+                        $scope.showError = false;
+                    }, 1000);
+
+                }
+            }
         });
     }
 

@@ -99,13 +99,23 @@ class LastService implements LastServiceInterface
     }
 
     /**
+     * @param string $username
+     */
+    public function follow($username)
+    {
+        $tracks = $this->grabFromLast($username, "recent", 1);
+
+    }
+
+    /**
      * @param $username
      * @param $type
+     * @param int|null $limit
      *
      * @return array
      * @throws LastException
      */
-    protected function grabFromLast($username, $type)
+    public function grabFromLast($username, $type, $limit = null)
     {
         $url = str_replace(["{username}", "{method}"], [$username, $type], $this->lastUrl);
         $response = $this->guzzle->get($url);
@@ -115,15 +125,30 @@ class LastService implements LastServiceInterface
         $data = $response->getBody()->getContents();
         $data = json_decode($data, true);
         $tracks = [];
+        if (isset($data['error'])) {
+            $message = "last.fm replied with error";
+            if (isset($data['message'])) {
+                $message .= ": " .$data['message'];
+            }
+            throw new LastException($message);
+        }
         if (!isset($data[$type . 'tracks']['track'])) {
             throw new LastException("Invalid last.fm response content");
         }
+        $count = 0;
         foreach ($data[$type . 'tracks']['track'] as $track) {
             $tracks[] = [
                 'name'   => $track['name'],
                 'artist' => $track['artist'][$type == "recent" ? "#text" : 'name'],
             ];
+            $count++;
+            if ($count > $limit) {
+                break;
+            }
+        }
 
+        if (!$tracks) {
+            throw new LastException("No tracks for this params.");
         }
 
         return $tracks;

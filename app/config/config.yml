@@ -69,9 +69,9 @@ doctrine:
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://localhost:27017
+            server: "%mongo_host%"
             options: {}
-    default_database: valletta
+    default_database: %mongo_db%
     document_managers:
         default:
             auto_mapping: true

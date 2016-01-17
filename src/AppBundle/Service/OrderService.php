@@ -39,13 +39,18 @@ class OrderService implements OrderServiceInterface
         $this->objectManager->flush();
     }
 
-    public function test()
+    /**
+     * @param int $limit
+     *
+     * @return array
+     */
+    public function getRecent($limit = 10)
     {
         $query = $this->objectManager
             ->createQueryBuilder("AppBundle:Order")
             ->find()
             ->sort("createdAt", -1)
-            ->limit(10)
+            ->limit($limit)
             ->getQuery();
 
         $results = $query->toArray();

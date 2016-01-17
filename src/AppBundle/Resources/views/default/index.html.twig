@@ -25,6 +25,12 @@
     </nav>
 
     <div ng-controller="FollowCtrl">
+        <div class="alert alert-success" ng-show="show" id="my-alert-success" role="alert">
+            Added to queue!
+        </div>
+        <div class="alert alert-danger" ng-show="showError" ng-bind="errorContent" id="my-alert-danger" role="alert">
+
+        </div>
     {% if (follow) %}
         <div>
             <input type="submit" ng-click="load($event, name)" />
@@ -47,13 +53,14 @@
             <div>
             {{ form_label(form.name) }} {{ form_widget(form.name, {'attr' : {'ng-model' : 'formData.name'}}) }}
             </div>
-            {{ form_widget(form.follow, {'attr':{"class" : "btn btn-primary btn-lg", 'ng-click' : 'setFollow()'}}) }}
+            {{ form_widget(form.follow, {'attr':{"class" : "btn btn-primary btn-lg", 'ng-click' : 'setFollow()',
+                'ng-bind' : 'followLabel'}}) }}
             <div class="my-choices">
 
 
                 {% for choice in form.type %}
 
-                    {{ form_widget(choice, {'attr':{"class" : "radio-inline"}}) }}
+                    {{ form_widget(choice, {'attr':{"class" : "radio-inline", 'ng-model' : 'formData.type'}}) }}
                     {{ form_label(choice) }}
                 {% endfor %}
             </div>

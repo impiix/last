@@ -16,6 +16,9 @@ parameters:
 
     locale:            en
 
+    mongo_host:        mongodb://localhost:27017
+    mongo_db:          valletta
+
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
     last_key: key

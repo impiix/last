@@ -50,7 +50,7 @@ class LastConsumer implements ConsumerInterface
             $tracks = $this->lastService->grab($data['username'], $data['token'], $data['type']);
             echo sprintf("%s: Imported %d tracks...\n", date("Y.m.d H:i:s"), count($tracks));
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
+            $this->logger->error(json_encode(['message' => $e->getMessage(), 'data' => $data]));
             return ConsumerInterface::MSG_REJECT;
         }
 
