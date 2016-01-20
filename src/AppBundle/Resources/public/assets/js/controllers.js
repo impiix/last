@@ -27,6 +27,7 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $t
     $scope.followLabel = "Follow";
 
     $scope.formData = {
+        submit: 'submit'
     };
 
     $scope.load = function ($event, username) {
@@ -90,7 +91,7 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $t
 
         promise = $interval(function() {
             $http.get('/follow/' + username);
-        }, 5000);
+        }, 10000);
     }
 
     $scope.stop = function() {

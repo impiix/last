@@ -21,12 +21,14 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
-    last_key: key
-    last_secret: secret
-    last_url: 'http://ws.audioscrobbler.com/2.0/?method=user.get{method}tracks&user={username}&api_key=%last_key%&format=json'
-    spotify_url: 'https://api.spotify.com/v1/search?q={query}&type=track'
+    last_key:          key
+    last_secret:       secret
+    last_url:          'http://ws.audioscrobbler.com/2.0/?method=user.get{method}tracks&user={username}&api_key=%last_key%&format=json'
+    spotify_url:       'https://api.spotify.com/v1/search?q={query}&type=track'
     spotify_playlist_create_url: 'https://api.spotify.com/v1/users/{user_id}/playlists'
     spotify_playlist_add_url: 'https://api.spotify.com/v1/users/{user_id}/playlists/{playlist_id}/tracks?uris={uris}'
+    spotify_playlist_replace_url: 'https://api.spotify.com/v1/users/{user_id}/playlists/{playlist_id}/tracks'
     spotify_auth_url: 'https://accounts.spotify.com/api/authorize?client_id={client_id}&response_type=token&scope=playlist-read-private%20playlist-modify&show_dialog=true&redirect_uri={redirect_uri}'
     spotify_profile_url: 'https://api.spotify.com/v1/me'
     spotify_client_id: client_id
+    token_test:        token

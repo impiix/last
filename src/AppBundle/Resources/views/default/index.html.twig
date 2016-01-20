@@ -31,11 +31,10 @@
         <div class="alert alert-danger" ng-show="showError" ng-bind="errorContent" id="my-alert-danger" role="alert">
 
         </div>
-    {% if (follow) %}
-        <div>
-            <input type="submit" ng-click="load($event, name)" />
-        </div>
-    {% endif %}
+        {% set attr = {'ng-model' : 'formData.name'} %}
+        {% if (follow) %}
+        {% set attr = attr|merge({'value': follow}) %}
+        {% endif %}
 
     <div class="panel panel-primary my-main-box">
         <div class="panel-heading">
@@ -51,7 +50,7 @@
             </div>
             {{ form_start(form, {"attr": {"class" :"my-form", 'ng-submit' : "submit($event)"}}) }}
             <div>
-            {{ form_label(form.name) }} {{ form_widget(form.name, {'attr' : {'ng-model' : 'formData.name'}}) }}
+            {{ form_label(form.name) }} {{ form_widget(form.name, {'attr' : attr}) }}
             </div>
             {{ form_widget(form.follow, {'attr':{"class" : "btn btn-primary btn-lg", 'ng-click' : 'setFollow()',
                 'ng-bind' : 'followLabel'}}) }}
@@ -74,24 +73,26 @@
     </div>
     </div>
 
-
-    <div>
+<div class="row">
+    <div class="col-md-6">
         <h4>Orders</h4>
         <table class="table" ng-controller="OrderCtrl">
             <tr>
                 <th>Username</th>
                 <th>Status</th>
                 <th>Added</th>
+                <th>At</th>
             </tr>
             <tr ng-repeat="order in orders">
                 <td>{{ '{{ order.username }}' }}</td>
                 <td>{{ '{{ order.status }}' }}</td>
-                <td>{{ '{{ order.created_at }}' }}</td>
+                <td>{{ '{{ order.tracks_count_added }}' }}</td>
+                <td>{{ '{{ order.created_at | date:"MM/dd/yy H:mm:ss" }}' }}</td>
             </tr>
         </table>
 
     </div>
-
+</div>
 
     <div class="well">
         <p>Last.fm to Spotify Converter.</p>

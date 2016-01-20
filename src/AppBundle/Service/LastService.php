@@ -21,12 +21,12 @@ class LastService implements LastServiceInterface
 {
 
     /**
-     * @var
+     * @var string
      */
     private $lastUrl;
 
     /**
-     * @var
+     * @var string
      */
     private $lastKey;
 
@@ -36,22 +36,27 @@ class LastService implements LastServiceInterface
     private $guzzle;
 
     /**
-     * @var
+     * @var string
      */
     private $spotifyUrl;
 
     /**
-     * @var
+     * @var string
      */
     private $spotifyCreatePlaylistUrl;
 
     /**
-     * @var
+     * @var string
      */
     private $spotifyPlaylistAddUrl;
 
     /**
-     * @var
+     * @var string
+     */
+    private $spotifyPlaylistReplaceUrl;
+
+    /**
+     * @var string
      */
     private $spotifyProfileUrl;
 
@@ -66,14 +71,20 @@ class LastService implements LastServiceInterface
     private $orderService;
 
     /**
-     * @param ClientInterface       $guzzle
+     * @var string
+     */
+    private $token;
+
+    /**
+     * @param ClientInterface $guzzle
      * @param PredisClientInterface $predis
-     * @param                       $lastKey
-     * @param                       $lastUrl
-     * @param                       $spotifyUrl
-     * @param                       $spotifyCreatePlaylistUrl
-     * @param                       $spotifyPlaylistAddUrl
-     * @param                       $spotifyProfileUrl
+     * @param string $lastKey
+     * @param string $lastUrl
+     * @param string $spotifyUrl
+     * @param string $spotifyCreatePlaylistUrl
+     * @param string $spotifyPlaylistAddUrl
+     * @param string $spotifyPlaylistReplaceUrl
+     * @param string $spotifyProfileUrl
      * @param OrderServiceInterface $orderService
      */
     public function __construct(
@@ -84,6 +95,7 @@ class LastService implements LastServiceInterface
         $spotifyUrl,
         $spotifyCreatePlaylistUrl,
         $spotifyPlaylistAddUrl,
+        $spotifyPlaylistReplaceUrl,
         $spotifyProfileUrl,
         OrderServiceInterface $orderService
     ) {
@@ -93,30 +105,75 @@ class LastService implements LastServiceInterface
         $this->spotifyUrl = $spotifyUrl;
         $this->spotifyCreatePlaylistUrl = $spotifyCreatePlaylistUrl;
         $this->spotifyPlaylistAddUrl = $spotifyPlaylistAddUrl;
+        $this->spotifyPlaylistReplaceUrl = $spotifyPlaylistReplaceUrl;
         $this->spotifyProfileUrl = $spotifyProfileUrl;
         $this->predis = $predis;
         $this->orderService = $orderService;
     }
 
     /**
-     * @param string $username
+     * @param string $token
      */
-    public function follow($username)
+    protected function initialize($token)
     {
-        $tracks = $this->grabFromLast($username, "recent", 1);
+        $this->token = $token;
+    }
 
+    /**
+     * @return string
+     *
+     * @throws LastException
+     */
+    protected function getAuth()
+    {
+        if (!$this->token) {
+            throw new LastException('Service not initialized with token');
+        }
+
+        return "Bearer " . $this->token;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function follow($username, $token)
+    {
+        $this->initialize($token);
+        $tracks = $this->grabFromLast($username, "recent", 1);
+        $uris = $this->getSpotifyUrls($tracks);
+
+        $userId = $this->getUserId();
+        $recent = json_encode($tracks[0]);
+
+        $query = 'recent_' . $username . $userId;
+        $cacheRecent = $this->predis->get($query);
+        if ($cacheRecent === $recent) {
+            return false;
+        }
+        $this->predis->set($query, $recent);
+
+        $query = 'follow_' . $username . $userId;
+        if (($playlistId = $this->predis->get($query)) === null) {
+            $playlistId = $this->createPlaylist($userId, $username);
+            $this->predis->set($query, $playlistId);
+        }
+
+        $this->replaceTracksInPlaylist($playlistId, $uris, $userId);
+
+        return true;
     }
 
     /**
      * @param $username
-     * @param $type
-     * @param int|null $limit
+     * @param string $type
+     * @param int $limit
      *
      * @return array
      * @throws LastException
      */
-    public function grabFromLast($username, $type, $limit = null)
+    public function grabFromLast($username, $type = '', $limit = 100)
     {
+        $type = $type ?: 'recent';
         $url = str_replace(["{username}", "{method}"], [$username, $type], $this->lastUrl);
         $response = $this->guzzle->get($url);
         if ($response->getStatusCode() != Response::HTTP_OK) {
@@ -142,7 +199,7 @@ class LastService implements LastServiceInterface
                 'artist' => $track['artist'][$type == "recent" ? "#text" : 'name'],
             ];
             $count++;
-            if ($count > $limit) {
+            if ($count >= $limit) {
                 break;
             }
         }
@@ -185,16 +242,15 @@ class LastService implements LastServiceInterface
     }
 
     /**
-     * @param $auth
      *
      * @return string
      */
-    protected function getUserId($auth)
+    protected function getUserId()
     {
         $response = $this->guzzle->get(
             $this->spotifyProfileUrl,
             [
-                'headers' => ['Authorization' => $auth]
+                'headers' => ['Authorization' => $this->getAuth()]
             ]
         );
         $content = $response->getBody()->getContents();
@@ -203,20 +259,23 @@ class LastService implements LastServiceInterface
     }
 
     /**
-     * @param $auth
+     * @param $userId
+     * @param $username
+     * @param string|null $type
      *
      * @return string
      */
-    protected function createPlaylist($auth, $userId, $username, $type)
+    protected function createPlaylist($userId, $username, $type = null)
     {
         $url = str_replace("{user_id}", $userId, $this->spotifyCreatePlaylistUrl);
+        $name = $type ? (ucwords($type) . "By" . ucwords($username)) : ("following". ucwords($username));
         $json = [
-            "name" => ucwords($type) . "By" . ucwords($username)
+            "name" => $name
         ];
         $response = $this->guzzle->post(
             $url,
             [
-                'headers' => ['Authorization' => $auth],
+                'headers' => ['Authorization' => $this->getAuth()],
                 'json'    => $json
             ]
         );
@@ -225,18 +284,48 @@ class LastService implements LastServiceInterface
          * @var \Psr\Http\Message\ResponseInterface $response
          */
 
-        return $response->getHeaderLine("location");
+        $url = $response->getHeaderLine("location");
+
+        $explodedUrl = explode('/', $url);
+        $playlistId = end($explodedUrl);
+
+        return $playlistId;
     }
 
     /**
      * @param $playlistId
      * @param $uris
-     * @param $auth
      * @param $userId
      *
      * @return int
      */
-    protected function addTracksToPlaylist($playlistId, $uris, $auth, $userId)
+    protected function replaceTracksInPlaylist($playlistId, $uris, $userId)
+    {
+        $url = str_replace(
+            ["{user_id}", "{playlist_id}"],
+            [$userId, $playlistId],
+            $this->spotifyPlaylistReplaceUrl
+        );
+
+        $response = $this->guzzle->put(
+            $url,
+            [
+                'headers' => ['Authorization' => $this->getAuth()],
+                'json'    => ['uris' => $uris]
+            ]
+        );
+
+        return $response->getStatusCode();
+    }
+
+    /**
+     * @param $playlistId
+     * @param $uris
+     * @param $userId
+     *
+     * @return int
+     */
+    protected function addTracksToPlaylist($playlistId, $uris, $userId)
     {
         $url = str_replace(
             ["{user_id}", "{playlist_id}", "{uris}"],
@@ -247,7 +336,7 @@ class LastService implements LastServiceInterface
         $response = $this->guzzle->post(
             $url,
             [
-                'headers' => ['Authorization' => $auth],
+                'headers' => ['Authorization' => $this->getAuth()],
             ]
         );
 
@@ -257,27 +346,24 @@ class LastService implements LastServiceInterface
     /**
      * {@inheritdoc}
      */
-    public function grab($lastUsername, $auth, $type)
+    public function grab($lastUsername, $type, $auth)
     {
+        $this->initialize($auth);
         $tracks = $this->grabFromLast($lastUsername, $type);
 
         $order = new Order($lastUsername);
         $this->orderService->save($order);
 
         $uris = $this->getSpotifyUrls($tracks);
-        $auth = "Bearer " . $auth;
 
-        $userId = $this->getUserId($auth);
-        $url = $this->createPlaylist($auth, $userId, $lastUsername, $type);
+        $userId = $this->getUserId();
+        $playlistId = $this->createPlaylist($userId, $lastUsername, $type);
 
-        $explodedUrl = explode('/', $url);
-        $playlistId = end($explodedUrl);
-
-        $this->addTracksToPlaylist($playlistId, $uris, $auth, $userId);
+        $this->addTracksToPlaylist($playlistId, $uris, $userId);
 
         $order->finish(count($uris));
         $this->orderService->save($order);
 
-        return $uris;
+        return $order;
     }
 }
