@@ -39,10 +39,21 @@ class DefaultController extends Controller
      */
     public function followAction(Request $request, $username)
     {
-        $updated = $this->get("last.service")->follow($username, $this->get("session")->get('token'));
-
-        $response = new Response(json_encode(['updated' => $updated ? 'yes' : 'no']));
+        $response = new Response();
         $response->headers->set("Content-Type", "application/json");
+
+        $description = "";
+
+        try {
+            $updated = $this->get("last.service")->follow($username, $this->get("session")->get('token'));
+            if ($updated) {
+                $description = $updated['artist'] . ' - ' . $updated['name'];
+            }
+            $updated =  $updated ? 'yes' : 'no';
+        } catch (LastException $e) {
+            $updated = 'error';
+        }
+        $response->setContent(json_encode(['updated' => $updated, 'description' => $description]));
 
         return $response;
     }

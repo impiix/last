@@ -44,6 +44,7 @@ class Order
 
     /**
      * @MongoDB\Date
+     * @MongoDB\Index(order="desc")
      */
     protected $createdAt;
 

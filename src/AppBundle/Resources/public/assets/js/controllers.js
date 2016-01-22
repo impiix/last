@@ -22,12 +22,14 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $t
     var enabled = false;
 
     $scope.show = false;
+    $scope.showLoader = false;
     $scope.showError = false;
     $scope.errorContent = "";
     $scope.followLabel = "Follow";
+    $scope.followTrack = "";
 
     $scope.formData = {
-        submit: 'submit'
+
     };
 
     $scope.load = function ($event, username) {
@@ -46,6 +48,12 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $t
 
     $scope.setFollow = function () {
         $scope.formData.follow = "follow";
+        delete $scope.formData.submit;
+    }
+
+    $scope.setSubmit = function () {
+        $scope.formData.submit = "submit";
+        delete $scope.formData.follow;
     }
 
     $scope.submit = function ($event, name) {
@@ -89,12 +97,20 @@ lastApp.controller("FollowCtrl", function ($scope, $http, $interval, $window, $t
     $scope.start = function(username) {
         $scope.stop();
 
+        $scope.showLoader = true;
         promise = $interval(function() {
-            $http.get('/follow/' + username);
+            $http.get('/follow/' + username)
+                .then(function(response) {
+                    if (response.data.updated == 'yes') {
+                        $scope.followTrack = response.data.description + "\n" + $scope.followTrack;
+                    }
+                });
+
         }, 10000);
     }
 
     $scope.stop = function() {
+        $scope.showLoader = false;
         $interval.cancel(promise);
     }
 });

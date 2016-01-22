@@ -2,7 +2,8 @@ div {
     font-family: MontSerrat, sans-serif;
 }
 div.my-main-box {
-    width: 800px; margin: auto; margin-top: 100px; margin-bottom: 100px;
+    margin-left: 80px;
+    padding: 0;
 }
 label {
     margin-right: 20px;
@@ -20,7 +21,11 @@ input.btn {
 }
 
 form.my-form {
-    font-size:44px;
+    font-size:36px;
+}
+.smaller-font {
+    font-size:20px;
+    max-height: 200px;
 }
 form.my-form div {
     margin-top: 20px;

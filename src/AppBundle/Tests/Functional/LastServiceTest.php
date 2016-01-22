@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 class LastServiceTest extends WebTestCase
 {
-    public function testMain()
+    public function testGrab()
     {
         $client = static::createClient();
         $container = $client->getContainer();
@@ -22,5 +22,18 @@ class LastServiceTest extends WebTestCase
         $order = $lastService->grab('icesahara', 'recent', $token);
 
         $this->assertGreaterThan(1, $order->getTracksCountAdded());
+    }
+
+    public function testFollow()
+    {
+        $client = static::createClient();
+        $container = $client->getContainer();
+        $lastService = $container->get("last.service");
+
+        $token = $container->getParameter("token_test");
+
+        $updated = $lastService->follow("icesahara", $token);
+
+        $this->assertTrue($updated);
     }
 }
