@@ -164,7 +164,13 @@ class LastService implements LastServiceInterface
             $this->predis->set($query, $playlistId);
         }
 
-        $this->replaceTracksInPlaylist($playlistId, $uris, $userId);
+        try {
+            $this->replaceTracksInPlaylist($playlistId, $uris, $userId);
+        } catch (ClientException $e) {
+            $playlistId = $this->createPlaylist($userId, $username);
+            $this->predis->set($query, $playlistId);
+            $this->replaceTracksInPlaylist($playlistId, $uris, $userId);
+        }
 
         return $tracks[0];
     }
