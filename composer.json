@@ -21,7 +21,7 @@
         "symfony/assetic-bundle": "~2.7",
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.8",
-        "sensio/distribution-bundle": "~4.0",
+        "sensio/distribution-bundle": "v5.0.3",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.1",
         "guzzlehttp/guzzle": "6.*",
