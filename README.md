@@ -1,8 +1,7 @@
 valletta
 ========
-| [Code quality] |
 
-
+[![Code quality](https://scrutinizer-ci.com/b/piix/last/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/b/piix/last)
 
 Symfony 2.8 LTS based project.
 
@@ -16,5 +15,3 @@ Uses PSR-2 as php coding standard.
 Uses FOSUserBundle, JMSSerializerBundle etc.
 
 Uses PHPUnit with Mockery.
-
-[Code quality]: https://scrutinizer-ci.com/b/piix/last/badges/quality-score.png?b=master
