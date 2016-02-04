@@ -34,7 +34,10 @@
     },
     "require-dev": {
         "sensio/generator-bundle": "~3.0",
-        "phpunit/phpunit": "5.1.0"
+        "phpunit/phpunit": "5.1.0",
+        "behat/behat": "v3.0.15",
+        "phpspec/phpspec": "2.4.0",
+        "mockery/mockery": "0.9.4"
     },
     "scripts": {
         "post-root-package-install": [

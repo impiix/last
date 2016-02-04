@@ -6,39 +6,61 @@
 namespace AppBundle\Tests;
 
 use AppBundle\Service\LastService;
+use AppBundle\ValueObject\UrlContainer;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Predis\ClientInterface as PredisClientInterface;
 use AppBundle\Service\OrderServiceInterface;
 
 class LastServiceTest extends WebTestCase
 {
-
-    public function testMain()
+    public function testMainFlow()
     {
-        $client = static::createClient();
-        $container = $client->getContainer();
-
         $username = "icesahara";
         $token = "";
 
-        $guzzle = $this->getMockBuilder(ClientInterface::class)->getMock();
-        $guzzle->expects("get");
-        $predis = $this->getMockBuilder(PredisClientInterface::class)->getMock();
-        $orderService = $this->getMockBuilder(OrderServiceInterface::class)->getMock();
+        $guzzle = \Mockery::mock(ClientInterface::class);
+
+        $predis = \Mockery::mock(PredisClientInterface::class);
+
+        $orderService = \Mockery::mock(OrderServiceInterface::class);
+
+        $urlContainer = \Mockery::mock(UrlContainer::class);
+
+        $response = new Response(
+            200,
+            [],
+            '{"recenttracks":{"track":[{"name":"Is this Love", "artist": {"#text":"Bob"}}]}}'
+        );
+
+        $responseForSpotify = new Response(
+            200,
+            [],
+            '{"tracks":{"items":[{"uri":"uri"}]}}'
+        );
+
+        $urlContainer->shouldReceive("getLastUrl");
+        $guzzle->shouldReceive("request")->once()->andReturn($response);
+        $orderService->shouldReceive("save");
+        $predis->shouldReceive("get");
+        $urlContainer->shouldReceive("getSpotifyUrl");
+        $guzzle->shouldReceive("request")->andReturn($responseForSpotify);
+        $predis->shouldReceive("set");
+        $urlContainer->shouldReceive("getSpotifyProfileUrl");
+        $urlContainer->shouldReceive("getSpotifyCreatePlaylistUrl");
+        $urlContainer->shouldReceive("getSpotifyPlaylistAddUrl");
 
         $service = new LastService(
             $guzzle,
             $predis,
             "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            $orderService
+            $orderService,
+            $urlContainer
         );
 
-        $service->grab($username, $token, "recent");
+        $order = $service->grab($username, $token, "recent");
+
+        $this->assertGreaterThan(0, $order->getTracksCountAdded());
     }
 }

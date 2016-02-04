@@ -1,13 +1,16 @@
 services:
     last.service:
         class: AppBundle\Service\LastService
-        arguments: [@guzzle, @predis, %last_key%, %last_url%, %spotify_url%, %spotify_playlist_create_url%, %spotify_playlist_add_url%, %spotify_playlist_replace_url%, %spotify_profile_url%, @order.service]
+        arguments: [@guzzle, @predis, %last_key%, @order.service, @url.container]
     last.consumer:
         class: AppBundle\Consumer\LastConsumer
         arguments: ["@last.service", "@logger"]
     order.service:
         class: AppBundle\Service\OrderService
         arguments: ["@doctrine.odm.mongodb.document_manager"]
+    url.container:
+        class: AppBundle\ValueObject\UrlContainer
+        arguments: [%last_url%, %spotify_url%, %spotify_playlist_create_url%, %spotify_playlist_add_url%, %spotify_playlist_replace_url%, %spotify_profile_url%]
 
 
 
